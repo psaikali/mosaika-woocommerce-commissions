@@ -36,21 +36,29 @@ function msk_preprocess_data_for_product_submission($data) {
 		'is-admin' => array('required', 'is_admin')
 	);
 
+	// On vérifie les données selon des règles : si il y a des erreurs, on les aura dans $errors
 	$errors = msk_validate_data($data, $validation_rules);
 
+	// Si l'utilisateur n'est pas identifié, on ajoute une erreur
 	if (!is_user_logged_in()) $errors[] = 'user:not_logged_in';
 
 	if (empty($errors)) {
+		// On prépare un nouveau tableau de données, plus organisé
 		$new_data['product'] = array(
 			'title' => sanitize_text_field($data['product-title']),
 			'content' => sanitize_text_field($data['product-description']),
 			'product_meta' => array()
 		);
 
+		// On prépare la structure des metadonnées du produit
 		$new_data['product']['product_meta']['user_submitted'] = 'on';
+		// ... l'ID du parrain
 		$new_data['product']['product_meta']['commission_user_id'] = get_current_user_id();
+		// ... le taux de commission par défaut
 		$new_data['product']['product_meta']['commission_rate'] = 5;
+		// ... le début de la validité de commission
 		$new_data['product']['product_meta']['commission_date_start'] = date('Y-m-d', strtotime('now'));
+		// ... la fin de validité de commission
 		$new_data['product']['product_meta']['commission_date_end'] = date('Y-m-d', strtotime('+6 months'));
 
 		$data = $new_data;
@@ -68,7 +76,15 @@ add_filter('msk_do_product_submission', 'msk_preprocess_data_for_product_submiss
  */
 function msk_create_product_for_product_submision($data) {
 	if (empty($data['errors']) && array_key_exists('product', $data)) {
-		$product_id = wp_insert_post(
+		// On créée le produit
+		$product = new WC_Product;
+		$product->set_name($data['product']['title']);
+		$product->set_description($data['product']['content']);
+		$product->set_status('pending');
+		$product->save();
+
+		// L'ancienne méthode...
+		/*$product_id = wp_insert_post(
 			array(
 				'post_type' => 'product',
 				'post_content' => $data['product']['content'],
@@ -76,23 +92,27 @@ function msk_create_product_for_product_submision($data) {
 				'post_status' => 'pending',
 				'post_author' => (current_user_can('manage_options')) ? get_current_user_id() : 1,
 			)
-		);
+		);*/
 
-		if (!is_wp_error($product_id)) {
+		$product_id = $product->get_id();
+
+		if (0 >= $product_id) {
+			// Erreur dans création du produit
+			$data['errors'][] = 'cant_create_product';
+			
+			var_dump($product_id->get_error_message());			
+		} else {
+			// Produit bien créé
 			$data['product']['ID'] = $product_id;
 
-			$wc_product = wc_get_product($product_id);
-
-			if ($wc_product && is_array($data['product']['product_meta'])) {
+			// On enregistre les metadonnées du produit
+			if ($product && is_array($data['product']['product_meta'])) {
 				foreach ($data['product']['product_meta'] as $meta_key => $meta_value) {
-					$wc_product->update_meta_data($meta_key, $meta_value);
+					$product->update_meta_data($meta_key, $meta_value);
 				}
 
-				$wc_product->save();
+				$product->save();
 			}
-		} else {
-			$data['errors'][] = 'cant_create_product';
-			msk_log('error', 'Impossible de créer un produit', $product_id->get_error_messages());
 		}
 	}
 
@@ -128,9 +148,10 @@ function msk_upload_product_photos_for_product_submision($data) {
 			}
 
 			if (isset($photos) && count($photos) > 0) {
-				$wc_product = wc_get_product($data['product']['ID']);
-				$wc_product->set_gallery_image_ids(array_column($photos, 'id'));
-				$wc_product->save();
+				// On assigne les photos dans la gallerie d'images du produit
+				$product = wc_get_product($data['product']['ID']);
+				$product->set_gallery_image_ids(array_column($photos, 'id'));
+				$product->save();
 			}
 		}
 	}
@@ -146,6 +167,7 @@ add_filter('msk_do_product_submission', 'msk_upload_product_photos_for_product_s
 function msk_send_email_notifications_for_product_submision($data) {
 	if (empty($data['errors']) && isset($data['product']['ID']) && isset($data['product']['product_meta']['user_submitted'])) {
 		if ($data['product']['product_meta']['user_submitted'] == 'on') {
+			// On récupère les données à envoyer par e-mail
 			$product_title = $data['product']['title'];
 			$product_description = $data['product']['content'];
 			$product_backoffice_url = admin_url(sprintf('post.php?post=%1$d&action=edit', $data['product']['ID']));
@@ -154,8 +176,7 @@ function msk_send_email_notifications_for_product_submision($data) {
 			$user_email = $user_data->user_email;
 			$home_url = home_url();
 
-			$email_data = compact('product_title', 'product_description', 'product_backoffice_url', 'user_login', 'user_email', 'home_url');
-
+			// On envoie un e-mail à l'admin
 			$subject_admin = 'Nouvelle proposition de produit';
 			$body_admin = sprintf(
 				__('Bonjour, un nouveau produit %1$s a été proposé par l\'utilisateur %2$s. Découvrez le sur <a href="%3$s">%3$s</a>.', 'mosaika'),
@@ -166,6 +187,7 @@ function msk_send_email_notifications_for_product_submision($data) {
 
 			wp_mail(get_option('admin_email'), $subject_admin, $body_admin, array('Content-Type: text/html; charset=UTF-8'));
 
+			// On envoie un e-mail au parrain
 			$subject = 'Merci !';
 			$body = sprintf(
 				__('Bonjour %1$s, nous avons bien reçu votre produit %2$s. Vous recevrez un e-mail dès qu\'il sera mis en vente dans notre boutique.', 'mosaika'),
@@ -189,6 +211,7 @@ add_filter('msk_do_product_submission', 'msk_send_email_notifications_for_produc
  */
 function msk_redirect_after_product_submission($data) {
 	if (empty($data['errors'])) {
+		// Si pas d'erreur, on redirige vers la page précédente avec ?notice=product_submitted dans l'URL
 		$redirect_url = add_query_arg(
 			array(
 				'notice' => 'product_submitted'
@@ -196,6 +219,7 @@ function msk_redirect_after_product_submission($data) {
 			remove_query_arg(array('product-title', 'product-description', 'is-admin', '_wpnonce', 'errors', 'notice'), wp_get_referer())
 		);
 	} else {
+		// Sinon, on redirige avec ?errors=... dans l'URL
 		unset($data['submit']);
 		unset($data['_wp_http_referer']);
 

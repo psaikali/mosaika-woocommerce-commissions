@@ -29,7 +29,10 @@ function msk_add_commission_product_fields() {
 	<div id="commission_product_data" class="panel woocommerce_options_panel">
 		<h4 style="padding-left:12px;"><?php _e('Parrainage et commission', 'mosaika'); ?></h4>
 
-		<?php woocommerce_wp_text_input(
+		<?php 
+
+		// Un champ pour l'identifiant de l'utilisateur parrain
+		woocommerce_wp_text_input(
 			array(
 				'id' => 'commission_user_id',
 				'label' => __('Identifiant utilisateur', 'mosaika'),
@@ -47,6 +50,7 @@ function msk_add_commission_product_fields() {
 			);
 		}
 
+		// Un champ pour définir le taux de commission
 		woocommerce_wp_text_input(
 			array(
 				'id' => 'commission_rate',
@@ -58,6 +62,8 @@ function msk_add_commission_product_fields() {
 			)
 		);
 
+		// Un champ pour indiquer le début de la validité du versement de commission sur ce produit
+		// Avant cette date, on ne verse rien au parrain
 		woocommerce_wp_text_input(
 			array(
 				'id' => 'commission_date_start',
@@ -69,6 +75,8 @@ function msk_add_commission_product_fields() {
 			)
 		);
 
+		// Un champ pour indiquer la fin de la validité du versement de commission sur ce produit
+		// Après cette date, on ne verse plus rien au parrain
 		woocommerce_wp_text_input(
 			array(
 				'id' => 'commission_date_end',
@@ -95,33 +103,34 @@ function msk_save_commission_product_fields_data($product_id, $post, $update) {
 	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
 
 	if ($post->post_type == 'product') {
+		// On récupère l'objet produit
 		$product = wc_get_product($product_id);
 
+		// On enregistre l'ID du parrain
 		if (isset($_POST['commission_user_id'])) {
 			$commission_user_id = wc_clean($_POST['commission_user_id']);
 			$product->update_meta_data('commission_user_id', $commission_user_id);
 		}
 
-		if (isset($_POST['commission_user'])) {
-			$commission_user = intval($_POST['commission_user']);
-			$product->update_meta_data('commission_user', $commission_user);
-		}
-
+		// On enregistre le taux de commission
 		if (isset($_POST['commission_rate'])) {
 			$commission_rate = floatval($_POST['commission_rate']);
 			$product->update_meta_data('commission_rate', $commission_rate);
 		}
 
+		// On enregistre la date de début de validité de versement de commission
 		if (isset($_POST['commission_date_start'])) {
 			$commission_date_start = wc_clean($_POST['commission_date_start']);
 			$product->update_meta_data('commission_date_start', $commission_date_start);
 		}
 
+		// On enregistre la date de fin de validité de versement de commission
 		if (isset($_POST['commission_date_end'])) {
 			$commission_date_end = wc_clean($_POST['commission_date_end']);
 			$product->update_meta_data('commission_date_end', $commission_date_end);
 		}
 
+		// On enregistre l'objet produit
 		$product->save();
 	}
 }

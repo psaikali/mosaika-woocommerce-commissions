@@ -11,15 +11,15 @@ function msk_save_commissions_gains_from_order_items($order_id, $old_status, $ne
 	global $wpdb;
 	$commissions_table_name = $wpdb->prefix . 'commissions';
 
+	// On récupère la commande concernée et les valeurs importantes
 	$order = wc_get_order($order_id);
 	$order_items = $order->get_items();
 	$order_customer_id = $order->get_customer_id();
-	$log_messages = array();
-	$log_data = array();
 
 	$type = 'gain';
 	$order_status = $new_status;
 
+	// Si la commande était "terminée" et change de statut, on supprime toute trace de commission concernant cette commande
 	if ($old_status == 'completed') {
 		$wpdb->delete(
 			$commissions_table_name,
@@ -28,34 +28,46 @@ function msk_save_commissions_gains_from_order_items($order_id, $old_status, $ne
 		);
 	}
 
+	// Si la commande devient "terminée"
 	if ($new_status == 'completed') {
+		// On analyse chaque ligne (produit) de la commande
 		foreach ($order_items as $order_item) {
+			// On récupère le produit
 			$line_product_id = $order_item->get_product_id();
 			$line_product = wc_get_product($line_product_id);
 
+			// On récupère les infos de commissions du produit
 			$line_product_start_date = $line_product->get_meta('commission_date_start', true);
 			$line_product_end_date = $line_product->get_meta('commission_date_end', true);
 
+			// Si la date de commission est définie...
 			if ($line_product_start_date != '' && !empty($line_product_start_date) && $line_product_end_date != '' && !empty($line_product_end_date)) {
 				$order_timestamp = $order->get_date_created()->getOffsetTimestamp();
 				$commission_start_timestamp = strtotime($line_product_start_date);
 				$commission_end_timestamp = strtotime($line_product_end_date);
 
+				// Si si la date de la commande est comprise entre la date de début et de fin de validité de commission...
 				if ($order_timestamp > $commission_start_timestamp && $order_timestamp < $commission_end_timestamp) {
+					// On récupère l'ID du parrain, le taux de commission
 					$user_id = $line_product->get_meta('commission_user_id', true);
 					$line_product_rate = $line_product->get_meta('commission_rate', true);
+					// On récupère la quantité de produits achetés
 					$line_product_quantity = $order_item->get_quantity();
+					// On récupère le total de la ligne
 					$line_subtotal = $order_item->get_subtotal();
 
+					// Si la ligne de cette commande a un coût supérieur à 0, et si un taux de commission est défini sur ce produit...
 					if ($line_product_rate > 0 && $line_subtotal > 0) {
+						// On calcule la commission à reverser
 						$amount = round((msk_price_to_float($line_product_rate) * $line_subtotal) / 100, 2);
 
-						// Double gain if customer is the product referral
+						// Et si l'acheteur est le parrain, on double sa récompense
 						if ($order_customer_id == $user_id) {
 							$amount = $amount * 2;
 						}
 					}
 
+					// Enfin, on enregistre toutes ces données dans notre table SQL
 					if ($user_id != '' && !empty($user_id) && $amount > 0) {
 						$data = array(
 							'type' => $type,

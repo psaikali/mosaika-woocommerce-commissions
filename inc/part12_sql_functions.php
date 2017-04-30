@@ -29,15 +29,18 @@ function msk_get_customer_commission_balance($user_id) {
 	$commission_balance = ($commission_data->user_gain > $commission_data->user_use) ? ($commission_data->user_gain - $commission_data->user_use) : 0;
 
 	return array(
+		// Le nombre de points disponibles
 		'balance' => $commission_balance,
+		// Le nombre de points gagnés depuis le début
 		'gain' => $commission_data->user_gain,
+		// Le nombre de points utilisés en réductions de commandes
 		'use' => $commission_data->user_use
 	);
 }
 
 
 /**
- * On récupère chaque ligne de commission (récompense ou usage)
+ * On récupère les détails chaque ligne de commission (récompense ou usage)
  */
 function msk_get_customer_commission_data($user_id) {
 	global $wpdb;
@@ -56,5 +59,10 @@ function msk_get_customer_commission_data($user_id) {
 		)
 	);
 
-	return array('points' => $commission, 'details' => $commission_data);
+	return array(
+		// Récapitulatif des points (cf fonction précédente)
+		'points' => $commission, 
+		// Détails de chaque gain/dépense
+		'details' => $commission_data
+	);
 }

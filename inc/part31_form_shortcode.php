@@ -16,13 +16,16 @@
 add_shortcode('msk_formulaire_proposer_produit', 'msk_shortcode_product_submission');
 
 function msk_shortcode_product_submission($atts) {
+	// On ajoute un champ caché pour savoir si c'est un utilisateur lambda ou l'admin qui remplit le formulaire
 	$is_admin_hidden_field = (is_user_logged_in() && current_user_can('manage_options')) ? 'on' : 'off';
 
+	// Valeurs par défaut des champs
 	$form_values_default = array(
 		'product-title' => '',
 		'product-description' => ''
 	);
 
+	// On boucle pour nettoyer les valeurs, si elles sont renvoyées par le système en cas d'erreur
 	$form_values = array_map('sanitize_text_field', wp_parse_args($_GET, $form_values_default));
 
 	$errors = msk_get_current_errors($_GET);

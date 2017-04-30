@@ -95,30 +95,34 @@ function msk_save_commission_product_fields_data($product_id, $post, $update) {
 	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
 
 	if ($post->post_type == 'product') {
+		$product = wc_get_product($product_id);
+
 		if (isset($_POST['commission_user_id'])) {
 			$commission_user_id = wc_clean($_POST['commission_user_id']);
-			update_post_meta($product_id, 'commission_user_id', $commission_user_id);
+			$product->update_meta_data('commission_user_id', $commission_user_id);
 		}
 
 		if (isset($_POST['commission_user'])) {
 			$commission_user = intval($_POST['commission_user']);
-			update_post_meta($product_id, 'commission_user', $commission_user);
+			$product->update_meta_data('commission_user', $commission_user);
 		}
 
 		if (isset($_POST['commission_rate'])) {
 			$commission_rate = floatval($_POST['commission_rate']);
-			update_post_meta($product_id, 'commission_rate', $commission_rate);
+			$product->update_meta_data('commission_rate', $commission_rate);
 		}
 
 		if (isset($_POST['commission_date_start'])) {
 			$commission_date_start = wc_clean($_POST['commission_date_start']);
-			update_post_meta($product_id, 'commission_date_start', $commission_date_start);
+			$product->update_meta_data('commission_date_start', $commission_date_start);
 		}
 
 		if (isset($_POST['commission_date_end'])) {
 			$commission_date_end = wc_clean($_POST['commission_date_end']);
-			update_post_meta($product_id, 'commission_date_end', $commission_date_end);
+			$product->update_meta_data('commission_date_end', $commission_date_end);
 		}
+
+		$product->save();
 	}
 }
 add_action('save_post', 'msk_save_commission_product_fields_data', 10, 3);

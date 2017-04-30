@@ -17,6 +17,6 @@ Ce plugin a été créé dans le cadre d'une série de tutoriels disponible sur 
 
 == Installation ==
 
-Installez le contenu de ce repo dans wp-content/plugins/msk\_formulaire\_proposer_produit ou uploadez son ZIP via la page Extensions dans l'admin WordPress.
+Installez le contenu de ce repo dans wp-content/plugins/msk_formulaire_proposer_produit ou uploadez son ZIP via la page Extensions dans l'admin WordPress.
 
-Ensuite, il suffit d'inclure le shortcode *[msk\_formulaire\_proposer_produit]* sur une page pour afficher le formulaire de soumission d'un produit.
+Ensuite, il suffit d'inclure le shortcode [msk\_formulaire\_proposer_produit] sur une page pour afficher le formulaire de soumission d'un produit.

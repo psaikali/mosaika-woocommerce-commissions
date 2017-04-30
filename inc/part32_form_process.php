@@ -242,7 +242,7 @@ add_filter('msk_do_product_submission', 'msk_redirect_after_product_submission',
  */
 function msk_notify_parrain_when_product_is_published($post_id) {
 	$product = wc_get_product($post_id);
-	$user_id = wc_get_product($post_id)->get_meta('commission_user_id', true);
+	$user_id = $product->get_meta('commission_user_id', true);
 	$user_data = get_userdata($user_id);
 
 	if ($user_data) {

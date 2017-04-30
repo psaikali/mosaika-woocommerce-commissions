@@ -48,7 +48,8 @@ function msk_shortcode_product_submission($atts) {
 				</p>
 				<?php } ?>
 			</fieldset>
-
+			
+			<?php if (is_user_logged_in()) { ?>
 			<fieldset class="product-data">
 				<div class="input">
 					<label for="product-title"><?php _e('Nom du produit', 'mosaika'); ?><span class="required">*</span></label>
@@ -72,6 +73,7 @@ function msk_shortcode_product_submission($atts) {
 				<input type="hidden" name="is-admin" value="<?php echo $is_admin_hidden_field; ?>" />
 				<button class="button" type="submit" name="submit" value="submit-product"><?php _e('Proposer un produit', 'mosaika'); ?></button>
 			</fieldset>
+			<?php } ?>
 		</section>
 	</form>
 

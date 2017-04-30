@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/attribuer-recompense-commission-parrain-woocommerce
+ *******************/
+
 /**
  * Pour chaque ligne (produit) d'une commande, on enregistre une commission si ce produit est relié à un parrain (prescripteur)
  */

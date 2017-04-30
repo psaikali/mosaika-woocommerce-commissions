@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/creer-cron-wordpress-envoyer-email-commission
+ *******************/
+ 
 /**
  * On enregistre le cron
  */

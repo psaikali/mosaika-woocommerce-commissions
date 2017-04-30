@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/creer-table-sql-wordpress-commission
+ *******************/
+
 /**
  * Permet de savoir combien de "points" un utilisateur possède
  * On compte combien de points il a gagné (récompense) et on soustrait le nombre de points qu'il a déjà utilisés (usage)

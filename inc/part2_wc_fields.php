@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/ajouter-onglet-parrainage-produits-woocommerce
+ *******************/
+
 /**
  * On ajoute un onglet "Parrainage" dans le back-office d'un produit WooCommerce
  */

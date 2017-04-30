@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/creer-formulaire-frontend-creation-produit-woocommerce
+ *******************/
+
 /* ####################################################################
 #######################################################################
 		Soumission d'un produit : shortcode

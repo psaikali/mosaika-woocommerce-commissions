@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/utiliser-cagnotte-reduction-parrain-woocommerce
+ *******************/
+
 /**
  * On affiche la checkbox "J'utilise mes X points" sur la page de commande
  */

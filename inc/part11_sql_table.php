@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/creer-table-sql-wordpress-commission
+ *******************/
+
 /**
  * Si inexistante, on créée la table SQL "commissions" après l'activation du thème
  */

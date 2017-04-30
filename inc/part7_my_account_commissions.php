@@ -1,5 +1,9 @@
 <?php
 
+/*******************
+ ******************* Tutoriel expliquant ce fichier : https://mosaika.fr/ajouter-onglet-compte-client-woocommerce-commission
+ *******************/
+
 /**
 * On ajoute un onglet "Mes points" dans Mon Compte WooCommerce
 */
